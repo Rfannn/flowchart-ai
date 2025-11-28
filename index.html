@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Transform natural language into beautiful flowcharts using AI. Generate Mermaid diagrams instantly.">
+    <meta name="keywords" content="flowchart, AI, Mermaid, diagram, generator">
+    <title>Flowchart AI - Diagram Generation</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #dbeafe;
+            --secondary: #64748b;
+            --success: #16a34a;
+            --success-light: #dcfce7;
+            --error: #dc2626;
+            --error-light: #fee2e2;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #94a3b8;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --border: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .header-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 0 2rem;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.2s;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .textarea::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .char-count {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--bg-tertiary);
+            border-color: var(--border-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-icon {
+            font-size: 1.125rem;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .examples-grid {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        .example-card {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .example-card:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            transform: translateX(4px);
+        }
+
+        .example-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .example-desc {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        #diagram-container {
+            min-height: 500px;
+        }
+
+        #diagram {
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            min-height: 400px;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #diagram svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-tertiary);
+            padding: 3rem 2rem;
+        }
+
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            opacity: 0.3;
+        }
+
+        .empty-state-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideDown 0.3s ease-out;
+            border: 1px solid;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-error {
+            background: var(--error-light);
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .alert-success {
+            background: var(--success-light);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .alert-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .alert-content {
+            flex: 1;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-text {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover {
+            color: var(--primary);
+        }
+
+        @media (max-width: 1024px) {
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            #diagram-container {
+                min-height: 400px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media print {
+            .header, .card:not(#diagram-container), .footer {
+                display: none;
+            }
+            
+            body {
+                background: white;
+            }
+            
+            #diagram {
+                border: none;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                <span>Flowchart AI</span>
+            </div>
+            <div class="header-badge">BETA</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="hero">
+            <h1 class="hero-title">Flowchart and Diagram Generation</h1>
+            <p class="hero-subtitle">Transform natural language descriptions into flowcharts using AI</p>
+        </section>
+        <div id="alert-container"></div>
+        <div class="app-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span>📝</span>
+                        <span>Process Description</span>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <label class="label" for="inputText">Describe your workflow or process</label>
+                        <textarea 
+                            id="inputText" 
+                            class="textarea"
+                            placeholder="Example: User submits login form. System validates credentials against database. If credentials are valid, generate session token and redirect to dashboard. If invalid, increment failed attempt counter and display error message. After 3 failed attempts, temporarily lock account for 15 minutes..."
+                            maxlength="2000"
+                        ></textarea>
+                        <div class="char-count">
+                            <span id="charCount">0</span> / 2000 characters
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="generateDiagram()" id="generateBtn">
+                            <span class="btn-icon" id="btnIcon">✨</span>
+                            <span id="btnText">Generate Diagram</span>
+                            <span id="btnSpinner" class="spinner" style="display: none;"></span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearAll()" id="clearBtn">
+                            <span class="btn-icon">🗑️</span>
+                            <span>Clear</span>
+                        </button>
+                    </div>
+
+                    <div class="examples-grid">
+                        <div class="example-card" onclick="loadExample(0)">
+                            <div class="example-title">🔐 User Authentication Flow</div>
+                            <div class="example-desc">Login validation with security measures</div>
+                        </div>
+                        <div class="example-card" onclick="loadExample(1)">
+                            <div class="example-title">🛒 E-commerce Checkout</div>
+                            <div class="example-desc">Shopping cart to payment process</div>
+                        </div>
+                        <div class="example-card" onclick="loadExample(2)">
+                            <div class="example-title">☕ Order Management</div>
+                            <div class="example-desc">Coffee shop order workflow</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="diagram-container">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span>📊</span>
+                        <span>Generated Flowchart</span>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div id="diagram">
+                        <div class="empty-state">
+                            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <line x1="10" y1="6.5" x2="14" y2="6.5"/>
+                                <line x1="17.5" y1="10" x2="17.5" y2="14"/>
+                                <line x1="10" y1="17.5" x2="14" y2="17.5"/>
+                            </svg>
+                            <div class="empty-state-title">No diagram yet</div>
+                            <div class="empty-state-text">Enter a process description and click generate to create your flowchart</div>
+                        </div>
+                    </div>
+                    <div class="stats-grid" id="stats" style="display: none;">
+                        <div class="stat-card">
+                            <div class="stat-value" id="stepCount">0</div>
+                            <div class="stat-label">Process Steps</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="decisionCount">0</div>
+                            <div class="stat-label">Decision Points</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="nodeCount">0</div>
+                            <div class="stat-label">Total Nodes</div>
+                        </div>
+                    </div>
+                    <div class="button-group" style="margin-top: 1rem; display: none;" id="diagramActions">
+                        <button class="btn btn-secondary" onclick="downloadDiagram()" id="downloadBtn">
+                            <span class="btn-icon">📥</span>
+                            <span>Download SVG</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="copyMermaidCode()" id="copyBtn">
+                            <span class="btn-icon">📋</span>
+                            <span>Copy Code</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p class="footer-text">Built with FastAPI, Gemini AI, and Mermaid.js</p>
+            <div class="footer-links">
+                <a href="http://github.com/rfannn/flowchart-ai/README.md" class="footer-link">Documentation</a>
+                <a href="#" class="footer-link">API Reference</a>
+                <a href="http://github.com/rfannn/flowchart-ai" class="footer-link">GitHub</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        
+        const examples = [
+            "User submits login form with username and password. System validates credentials against database. If credentials are valid, generate session token and redirect to dashboard. If invalid, increment failed attempt counter and display error message. After 3 failed attempts, temporarily lock account for 15 minutes and send security alert email.",
+            "Customer adds items to shopping cart. When proceeding to checkout, system verifies if user is logged in. If not logged in, redirect to login page with return URL. If logged in, validate cart contents and check inventory. If items available, proceed to payment gateway. Process payment and wait for confirmation. On success, create order record, update inventory, send confirmation email, and display success page. On failure, return to checkout with error message.",
+            "Customer enters coffee shop and places order. Barista records order and asks for size preference. Customer selects from small, medium, or large options. Barista then asks if customer wants hot or iced beverage. Based on selection, prepare drink with appropriate equipment. Add any requested modifications like extra shots or flavoring. Complete preparation, call customer name, and serve beverage."
+        ];
+
+        let currentFlowchartData = null;
+
+        mermaid.initialize({ 
+            startOnLoad: false,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        const textarea = document.getElementById('inputText');
+        const charCount = document.getElementById('charCount');
+        
+        textarea.addEventListener('input', () => {
+            charCount.textContent = textarea.value.length;
+        });
+
+        function loadExample(index) {
+            textarea.value = examples[index];
+            charCount.textContent = examples[index].length;
+            showAlert('Example loaded successfully. Click "Generate Diagram" to visualize the workflow.', 'success');
+        }
+        function clearAll() {
+            textarea.value = '';
+            charCount.textContent = '0';
+            document.getElementById('diagram').innerHTML = `
+                <div class="empty-state">
+                    <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                        <line x1="10" y1="6.5" x2="14" y2="6.5"/>
+                        <line x1="17.5" y1="10" x2="17.5" y2="14"/>
+                        <line x1="10" y1="17.5" x2="14" y2="17.5"/>
+                    </svg>
+                    <div class="empty-state-title">No diagram yet</div>
+                    <div class="empty-state-text">Enter a process description and click generate to create your flowchart</div>
+                </div>
+            `;
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('diagramActions').style.display = 'none';
+            currentFlowchartData = null;
+            hideAlert();
+        }
+
+        function showAlert(message, type = 'error') {
+            const container = document.getElementById('alert-container');
+            const icon = type === 'error' ? '⚠️' : '✅';
+            container.innerHTML = `
+                <div class="alert alert-${type}">
+                    <span class="alert-icon">${icon}</span>
+                    <div class="alert-content">${message}</div>
+                </div>
+            `;
+            setTimeout(hideAlert, 5000);
+        }
+
+        function hideAlert() {
+            document.getElementById('alert-container').innerHTML = '';
+        }
+
+        function setLoading(loading) {
+            const btn = document.getElementById('generateBtn');
+            const text = document.getElementById('btnText');
+            const icon = document.getElementById('btnIcon');
+            const spinner = document.getElementById('btnSpinner');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            btn.disabled = loading;
+            clearBtn.disabled = loading;
+            text.textContent = loading ? 'Generating...' : 'Generate Diagram';
+            icon.style.display = loading ? 'none' : 'inline';
+            spinner.style.display = loading ? 'inline-block' : 'none';
+        }
+
+        function updateStats(data) {
+            document.getElementById('stepCount').textContent = data.steps.length;
+            document.getElementById('decisionCount').textContent = data.decisions.length;
+            
+            const nodeMatches = data.mermaid.match(/\w+\[.*?\]|\w+\{.*?\}/g);
+            document.getElementById('nodeCount').textContent = nodeMatches ? nodeMatches.length : 0;
+            
+            document.getElementById('stats').style.display = 'grid';
+            document.getElementById('diagramActions').style.display = 'flex';
+        }
+
+        async function generateDiagram() {
+            const text = textarea.value.trim();
+            
+            if (!text) {
+                showAlert('Please enter a process description to generate a flowchart.', 'error');
+                textarea.focus();
+                return;
+            }
+
+            hideAlert();
+            setLoading(true);
+            
+            const diagramElement = document.getElementById('diagram');
+            diagramElement.innerHTML = `
+                <div class="empty-state">
+                    <div class="spinner" style="border-color: var(--primary); border-top-color: transparent; width: 48px; height: 48px; margin: 0 auto 1rem;"></div>
+                    <div class="empty-state-title">Processing your description...</div>
+                    <div class="empty-state-text">Our AI is analyzing your workflow and generating the optimal diagram structure</div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP ${response.status}: Request failed`);
+                }
+
+                const data = await response.json();
+                currentFlowchartData = data;
+
+                diagramElement.innerHTML = '';
+                const { svg } = await mermaid.render('diagram-svg-' + Date.now(), data.mermaid);
+                diagramElement.innerHTML = svg;
+
+                updateStats(data);
+
+                showAlert('Flowchart generated successfully!', 'success');
+            } catch (error) {
+                console.error('Generation error:', error);
+                diagramElement.innerHTML = `
+                    <div class="empty-state">
+                        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <div class="empty-state-title">Generation failed</div>
+                        <div class="empty-state-text">${error.message}</div>
+                    </div>
+                `;
+                showAlert(`Failed to generate flowchart: ${error.message}`, 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function downloadDiagram() {
+            if (!currentFlowchartData) return;
+
+            const svg = document.querySelector('#diagram svg');
+            if (!svg) return;
+
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const blob = new Blob([svgData], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `flowchart-${timestamp}.svg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showAlert('Flowchart exported successfully!', 'success');
+        }
+
+        function copyMermaidCode() {
+            if (!currentFlowchartData) return;
+
+            navigator.clipboard.writeText(currentFlowchartData.mermaid).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<span class="btn-icon">✅</span><span>Copied!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                }, 2000);
+                showAlert('Mermaid code copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                showAlert('Failed to copy code. Please try again.', 'error');
+            });
+        }
+
+        textarea.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                generateDiagram();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            textarea.focus();
+        });
+    </script>
+</body>
+</html>
